@@ -1,0 +1,70 @@
+name: API Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dev-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Start API
+        run: |
+          docker run -d \
+            --name sdet-challenge \
+            -p 3000:3000 \
+            ghcr.io/danielsilva-loanpro/sdet-interview-challenge
+
+      - name: Wait for API
+        run: |
+          for i in {1..20}; do
+            if curl -s http://localhost:3000/dev/users > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Run dev tests
+        run: npm run test:dev
+
+  prod-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Start API
+        run: |
+          docker run -d \
+            --name sdet-challenge \
+            -p 3000:3000 \
+            ghcr.io/danielsilva-loanpro/sdet-interview-challenge
+
+      - name: Wait for API
+        run: |
+          for i in {1..20}; do
+            if curl -s http://localhost:3000/prod/users > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Run prod tests
+        run: npm run test:prod
