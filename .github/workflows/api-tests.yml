@@ -37,6 +37,13 @@ jobs:
       - name: Run dev tests
         run: npm run test:dev
 
+      - name: Upload dev report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-dev
+          path: playwright-report/
+
   prod-tests:
     runs-on: ubuntu-latest
 
@@ -68,3 +75,10 @@ jobs:
 
       - name: Run prod tests
         run: npm run test:prod
+
+      - name: Upload prod report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-prod
+          path: playwright-report/
